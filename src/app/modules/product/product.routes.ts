@@ -10,5 +10,6 @@ router.post(
   validateDataByZod(productValidations.createProductSchema),
   productController.createProduct,
 );
+router.get('/', productController.retrieveAllProducts);
 
 export const productRoutes = router;

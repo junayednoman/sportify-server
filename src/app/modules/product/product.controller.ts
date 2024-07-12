@@ -12,4 +12,12 @@ const createProduct = catchAsyncError(async (req, res) => {
   });
 });
 
-export const productController = { createProduct };
+const retrieveAllProducts = catchAsyncError(async (req, res) => {
+  const result = await productServices.retrieveAllProductsFromDb();
+  successResponse(res, {
+    data: result,
+    message: 'Product retrieved successfully!',
+  });
+});
+
+export const productController = { createProduct, retrieveAllProducts };

@@ -11,5 +11,11 @@ router.post(
   productController.createProduct,
 );
 router.get('/', productController.retrieveAllProducts);
+router.get('/:id', productController.retrieveSingleProduct);
+router.put(
+  '/:id',
+  validateDataByZod(productValidations.createProductSchema),
+  productController.updateSingleProduct,
+);
 
 export const productRoutes = router;

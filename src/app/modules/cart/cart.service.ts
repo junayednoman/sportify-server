@@ -128,11 +128,30 @@ const updateCartItemQuantityIntoDb = async (
       );
     }
 
+    // update stock quantity on actual product doc
+    const actualProduct = await ProductModel.findById(productId);
+    // console.log(actualProduct);
+    // console.log(cartProduct.quantity);
+    if (cartProduct.quantity < quantity) {
+      const quantityToUpdate = quantity - cartProduct.quantity;
+      const updatedQuantity = (actualProduct!.quantity -= quantityToUpdate);
+      await ProductModel.findByIdAndUpdate(productId, {
+        quantity: updatedQuantity,
+      });
+    } else if (cartProduct.quantity > quantity) {
+      const quantityToUpdate = cartProduct.quantity - quantity;
+      const updatedQuantity = (actualProduct!.quantity += quantityToUpdate);
+      await ProductModel.findByIdAndUpdate(productId, {
+        quantity: updatedQuantity,
+      });
+    }
+
     // Update the quantity
     cartProduct.quantity = quantity;
     cartProduct.price = price;
 
     await cart.save();
+
     return cart;
   } catch (error: any) {
     throw new Error(`Failed to update cart: ${error.message}`);

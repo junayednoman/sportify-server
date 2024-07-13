@@ -11,10 +11,13 @@ const cartProductSchema = new Schema<TCartProduct>({
   price: { type: Number, required: true },
 });
 
-const cartSchema = new Schema<TCart>({
-  user: { type: mongoose.Types.ObjectId, ref: 'user', required: true },
-  products: { type: [cartProductSchema], required: true },
-});
+const cartSchema = new Schema<TCart>(
+  {
+    user: { type: mongoose.Types.ObjectId, ref: 'user', required: true },
+    products: { type: [cartProductSchema], required: true },
+  },
+  { timestamps: true },
+);
 
 // check if user exists before fetching a cart
 cartSchema.pre('findOne', async function (next) {

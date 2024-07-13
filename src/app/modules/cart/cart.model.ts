@@ -13,10 +13,11 @@ const cartProductSchema = new Schema<TCartProduct>({
 });
 
 const cartSchema = new Schema<TCart>({
-  user: { type: mongoose.Types.ObjectId, required: true },
+  user: { type: mongoose.Types.ObjectId, ref: 'user', required: true },
   products: { type: [cartProductSchema], required: true },
 });
 
+// check before adding a cart
 cartSchema.pre('save', async function (next) {
   try {
     const isUserExist = await UserModel.findById(this.user);
@@ -52,6 +53,16 @@ cartSchema.pre('save', async function (next) {
   } catch (err: any) {
     next(err);
   }
+});
+
+// check if user exists before fetching a cart
+cartSchema.pre('findOne', async function (next) {
+  const query = this.getQuery();
+  const isUserExist = await UserModel.findOne({ _id: query.user });
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid user ID');
+  }
+  next();
 });
 
 export const CartModel = mongoose.model<TCart>('cart', cartSchema);

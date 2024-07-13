@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import httpStatus from 'http-status';
+import { AppError } from '../../errors/AppError';
 import { TCart } from './cart.interface';
 import { CartModel } from './cart.model';
 
@@ -23,8 +26,10 @@ const addCartIntoDb = async (payload: TCart) => {
         );
         if (newProductThatMatchesAnyExistingProduct) {
           // Update the quantity of the existing product
-          existingProduct.quantity += newProductThatMatchesAnyExistingProduct.quantity;
-          existingProduct.price += newProductThatMatchesAnyExistingProduct.price;
+          existingProduct.quantity +=
+            newProductThatMatchesAnyExistingProduct.quantity;
+          existingProduct.price +=
+            newProductThatMatchesAnyExistingProduct.price;
           return existingProduct;
         }
         return existingProduct;
@@ -54,4 +59,47 @@ const addCartIntoDb = async (payload: TCart) => {
   return result;
 };
 
-export const cartServices = { addCartIntoDb };
+const retrieveCart = async (userId: string) => {
+  const result = await CartModel.findOne({ user: userId }).populate('user');
+  return result;
+};
+
+// Service to update the quantity of a product in the cart
+const updateCartItemQuantityIntoDb = async (
+  userId: string,
+  productId: string,
+  quantity: number,
+  price: number,
+) => {
+  try {
+    // Find the cart for the user
+    const cart = await CartModel.findOne({ user: userId });
+
+    if (!cart) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Cart not found');
+    }
+
+    // Find the product in the cart
+    const cartProduct = cart.products.find(
+      (prod) => prod.productId.toString() === productId.toString(),
+    );
+
+    if (!cartProduct) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Product not found in cart');
+    }
+
+    // Update the quantity
+    cartProduct.quantity = quantity;
+    cartProduct.price = price;
+
+    // Save the updated cart
+    await cart.save();
+
+    // Return the updated cart or necessary details
+    return cart;
+  } catch (error: any) {
+    throw new Error(`Failed to update cart: ${error.message}`);
+  }
+};
+
+export const cartServices = { addCartIntoDb, retrieveCart, updateCartItemQuantityIntoDb };

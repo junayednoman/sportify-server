@@ -34,8 +34,22 @@ const updateCartItemQuantity = catchAsyncError(async (req, res) => {
   });
 });
 
+const deleteCartProducts = catchAsyncError(async (req, res) => {
+  const userId = req.params.userId;
+  const {productIds} = req.body;
+  const result = await cartServices.deleteCartProductsFromDb(
+    userId,
+    productIds,
+  );
+  successResponse(res, {
+    data: result,
+    message: 'Cart product deleted successfully!',
+  });
+});
+
 export const cartControllers = {
   addCart,
   retrieveCart,
   updateCartItemQuantity,
+  deleteCartProducts,
 };

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { array, z } from 'zod';
 
 const objectIdValidation = z
   .string()
@@ -11,10 +11,12 @@ const cartProductValidationSchema = z.object({
 });
 
 const cartValidationSchema = z.object({
-  user: objectIdValidation,
-  products: z
-    .array(cartProductValidationSchema)
-    .nonempty({ message: 'Products array cannot be empty' }),
+  body: z.object({
+    user: objectIdValidation,
+    products: z
+      .array(cartProductValidationSchema)
+      .nonempty({ message: 'Products array cannot be empty' }),
+  }),
 });
 
 const updateCartItemProductQuantitySchema = z.object({
@@ -25,4 +27,14 @@ const updateCartItemProductQuantitySchema = z.object({
   }),
 });
 
-export const cartValidations = { cartValidationSchema ,updateCartItemProductQuantitySchema};
+const deleteCartProductsSchema = z.object({
+  body: z.object({
+    productIds: array(objectIdValidation),
+  }),
+});
+
+export const cartValidations = {
+  cartValidationSchema,
+  updateCartItemProductQuantitySchema,
+  deleteCartProductsSchema
+};

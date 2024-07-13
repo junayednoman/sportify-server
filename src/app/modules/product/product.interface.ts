@@ -8,4 +8,5 @@ export type TProduct = {
   image: string;
   tag?: string;
   discount?: string;
+  isDeleted: boolean;
 };

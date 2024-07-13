@@ -10,7 +10,10 @@ const createProductSchema = z.object({
     description: z.string().optional(),
     image: z.string().nonempty('Image is required'),
     tag: z.string().optional(),
-    discount: z.number().optional(),
+    discount: z
+      .number({ invalid_type_error: 'Discount must be a number' })
+      .optional(),
+    isDeleted: z.boolean().optional(),
   }),
 });
 

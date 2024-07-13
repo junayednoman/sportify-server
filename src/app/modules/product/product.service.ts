@@ -21,11 +21,30 @@ const retrieveSingleProductFromDb = async (id: string) => {
 const updateSingleProductIntoDb = async (id: string, payload: TProduct) => {
   const isProductExist = await ProductModel.findById(id);
   if (!isProductExist) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Invalid product ID');
+    throw new AppError(404, 'Invalid product ID');
+  } else if (isProductExist.isDeleted) {
+    throw new AppError(httpStatus.CONFLICT, 'The product is deleted!');
   }
   const result = await ProductModel.findByIdAndUpdate(id, payload, {
     new: true,
   });
+  return result;
+};
+
+const deleteSingleProductIntoDb = async (id: string) => {
+  const isProductExist = await ProductModel.findById(id);
+  if (!isProductExist) {
+    throw new AppError(404, 'Invalid product ID');
+  } else if (isProductExist.isDeleted) {
+    throw new AppError(httpStatus.CONFLICT, 'The product is already deleted!');
+  }
+  const result = await ProductModel.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    {
+      new: true,
+    },
+  );
   return result;
 };
 
@@ -34,4 +53,5 @@ export const productServices = {
   retrieveAllProductsFromDb,
   retrieveSingleProductFromDb,
   updateSingleProductIntoDb,
+  deleteSingleProductIntoDb,
 };

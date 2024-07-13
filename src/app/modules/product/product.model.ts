@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../errors/AppError';
 import httpStatus from 'http-status';
+import { TProduct } from './product.interface';
 
-const productSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema<TProduct>(
   {
     name: { type: String, required: true, unique: true },
     category: { type: String, required: true },
@@ -13,6 +14,7 @@ const productSchema = new mongoose.Schema(
     image: { type: String, required: true },
     tag: { type: String },
     discount: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
@@ -31,4 +33,4 @@ productSchema.pre('save', async function (next) {
   next();
 });
 
-export const ProductModel = mongoose.model('Product', productSchema);
+export const ProductModel = mongoose.model<TProduct>('Product', productSchema);

@@ -45,13 +45,10 @@ export const globalErrorHandler = (
     message = 'Duplicate Error!';
     statusCode = httpStatus.BAD_REQUEST;
     const pathKeys = Object.keys(err.keyValue);
-    const regex = /"([^"]+)"/;
-    const match = err.message.match(regex);
-    const extractedPath = match[1];
     errorSources = [
       {
         path: pathKeys[0],
-        message: `${extractedPath} is already taken`,
+        message: `This ${pathKeys[0]} is already taken`,
       },
     ];
   } else if (err instanceof AppError) {

@@ -6,9 +6,11 @@ import httpStatus from 'http-status';
 import { UserModel } from '../auth/auth.model';
 
 const cartProductSchema = new Schema<TCartProduct>({
-  productId: { type: mongoose.Types.ObjectId, required: true },
+  productId: { type: mongoose.Types.ObjectId, ref: 'Product', required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
+  image: { type: String, required: true },
+  name: { type: String, required: true },
 });
 
 const cartSchema = new Schema<TCart>(

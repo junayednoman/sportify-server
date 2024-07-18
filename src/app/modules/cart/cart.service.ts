@@ -17,22 +17,19 @@ const addCartIntoDb = async (payload: TCart) => {
     payload.products.map(async (product: TCartProduct) => {
       const isProductExist = await ProductModel.findById(product.productId);
       if (!isProductExist) {
-        throw new AppError(
-          httpStatus.NOT_FOUND,
-          `Invalid product ID: ${product.productId}`,
-        );
+        throw new AppError(httpStatus.NOT_FOUND, `Invalid product ID`);
       }
       if (isProductExist.isDeleted) {
         throw new AppError(
           httpStatus.UNPROCESSABLE_ENTITY,
-          `The product is deleted: ${product.productId}`,
+          `The product is deleted`,
         );
       }
       // Check sufficiency of product quantity
       if (isProductExist.quantity < product.quantity) {
         throw new AppError(
           httpStatus.UNPROCESSABLE_ENTITY,
-          `Insufficient product quantity: ${product.productId}`,
+          `Insufficient product quantity`,
         );
       }
     }),
@@ -97,7 +94,7 @@ const addCartIntoDb = async (payload: TCart) => {
 };
 
 const retrieveCart = async (userId: string) => {
-  const result = await CartModel.findOne({ user: userId }).populate('user');
+  const result = await CartModel.findOne({ user: userId });
   return result;
 };
 
@@ -130,8 +127,7 @@ const updateCartItemQuantityIntoDb = async (
 
     // update stock quantity on actual product doc
     const actualProduct = await ProductModel.findById(productId);
-    // console.log(actualProduct);
-    // console.log(cartProduct.quantity);
+
     if (cartProduct.quantity < quantity) {
       const quantityToUpdate = quantity - cartProduct.quantity;
       const updatedQuantity = (actualProduct!.quantity -= quantityToUpdate);
@@ -149,6 +145,9 @@ const updateCartItemQuantityIntoDb = async (
     // Update the quantity
     cartProduct.quantity = quantity;
     cartProduct.price = price;
+    if (cartProduct.quantity === 0) {
+      await deleteCartProductsFromDb(userId, [productId], 0);
+    }
 
     await cart.save();
 
@@ -161,6 +160,7 @@ const updateCartItemQuantityIntoDb = async (
 const deleteCartProductsFromDb = async (
   userId: string,
   productIds: string[],
+  quantity: number = 0,
 ) => {
   const cart = await CartModel.findOne({ user: userId });
 
@@ -168,7 +168,7 @@ const deleteCartProductsFromDb = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Cart not found');
   }
 
-  productIds.map((productId) => {
+  productIds.map(async (productId) => {
     // Find the product in the cart
     const cartProduct = cart.products.find(
       (prod) => prod.productId.toString() === productId.toString(),
@@ -180,6 +180,10 @@ const deleteCartProductsFromDb = async (
         `Invalid product Id: ${productId}`,
       );
     }
+    const actualProduct = await ProductModel.findById(productId);
+    await ProductModel.findByIdAndUpdate(productId, {
+      quantity: actualProduct!.quantity + quantity,
+    });
   });
 
   // Remove products from the cart

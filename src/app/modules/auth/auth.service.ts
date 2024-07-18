@@ -19,11 +19,7 @@ const loginUser = async (payload: TLoginUser) => {
   );
   // check if a user exist with the email
   if (!user) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      'No user found with this email!',
-      'email',
-    );
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid email!', 'email');
   }
 
   // check if password match
@@ -40,6 +36,7 @@ const loginUser = async (payload: TLoginUser) => {
   const jwtPayload = {
     email: user?.email,
     role: user?.role,
+    id: user?.id,
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
@@ -48,7 +45,6 @@ const loginUser = async (payload: TLoginUser) => {
 
   return { accessToken, user };
 };
-
 
 export const UserServices = {
   createUserIntoDb,

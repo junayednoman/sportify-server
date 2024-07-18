@@ -36,10 +36,11 @@ const updateCartItemQuantity = catchAsyncError(async (req, res) => {
 
 const deleteCartProducts = catchAsyncError(async (req, res) => {
   const userId = req.params.userId;
-  const {productIds} = req.body;
+  const {productIds, quantity} = req.body;
   const result = await cartServices.deleteCartProductsFromDb(
     userId,
     productIds,
+    quantity
   );
   successResponse(res, {
     data: result,

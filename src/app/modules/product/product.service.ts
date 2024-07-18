@@ -10,11 +10,15 @@ const createProductIntoDb = async (payload: TProduct) => {
 };
 
 const retrieveAllProductsFromDb = async (query: Record<string, unknown>) => {
-  const searchableFields = ['name', 'category', 'brand'];
+  const searchableFields = ['name', 'category', 'brand', 'description'];
 
-  const productQuery = new QueryBuilder(ProductModel.find(), query)
+  const productQuery = new QueryBuilder(
+    ProductModel.find({ isDeleted: false }),
+    query,
+  )
     .search(searchableFields)
-    .filter()
+    .filterBy(['category', 'brand', 'rating'])
+    .filterByMaxPrice()
     .sort()
     .paginate()
     .fields();

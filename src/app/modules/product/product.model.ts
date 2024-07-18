@@ -10,10 +10,11 @@ const productSchema = new mongoose.Schema<TProduct>(
     quantity: { type: Number, required: true },
     brand: { type: String, required: true },
     price: { type: Number, required: true },
+    rating: { type: String, required: true },
     description: { type: String },
     image: { type: String, required: true },
     tag: { type: String },
-    discount: { type: String },
+    discount: { type: Number },
     isDeleted: { type: Boolean, default: false },
   },
   {
@@ -24,9 +25,13 @@ const productSchema = new mongoose.Schema<TProduct>(
 productSchema.pre('save', async function (next) {
   const isProductExist = await ProductModel.findOne({ name: this.name });
   if (isProductExist) {
+    await ProductModel.findOneAndUpdate(
+      { name: this.name },
+      { isDeleted: false },
+    );
     throw new AppError(
       httpStatus.CONFLICT,
-      'A product is already exist with this name',
+      `A product is already exist with this name.`,
       'name',
     );
   }

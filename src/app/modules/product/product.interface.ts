@@ -6,7 +6,8 @@ export type TProduct = {
   price: number;
   description?: string;
   image: string;
+  rating: string;
   tag?: string;
-  discount?: string;
+  discount?: number;
   isDeleted: boolean;
 };

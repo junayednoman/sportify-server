@@ -9,6 +9,7 @@ const createProductSchema = z.object({
     price: z.number().positive('Price must be a positive number'),
     description: z.string().optional(),
     image: z.string().nonempty('Image is required'),
+    rating: z.string().nonempty('Rating is required'),
     tag: z.string().optional(),
     discount: z
       .number({ invalid_type_error: 'Discount must be a number' })

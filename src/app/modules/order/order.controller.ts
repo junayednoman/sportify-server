@@ -7,8 +7,7 @@ const createOrder = catchAsyncError(async (req, res) => {
   const result = await orderServices.createOrderIntoDb(orderData);
   successResponse(res, {
     data: result,
-    status: 201,
-    message: 'Order created successfully!',
+    message: 'Order placed successfully!',
   });
 });
 

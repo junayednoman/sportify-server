@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FilterQuery, Query } from 'mongoose';
 
 class QueryBuilder<T> {
@@ -24,15 +25,41 @@ class QueryBuilder<T> {
     return this;
   }
 
-  filter() {
-    const filterQueryObj = { ...this.query };
-    // filter query
-    const excludeFields = ['searchTerm', 'sort', 'limit', 'pages', 'fields'];
-    excludeFields.forEach((field) => {
-      delete filterQueryObj[field];
-    });
+  // filter() {
+  //   const filterQueryObj = { ...this.query };
+  //   // filter query
+  //   const excludeFields = ['searchTerm', 'sort', 'limit', 'pages', 'fields'];
+  //   excludeFields.forEach((field) => {
+  //     delete filterQueryObj[field];
+  //   });
+  //   console.log(this.query);
 
-    this.modelQuery = this.modelQuery.find(filterQueryObj as FilterQuery<T>);
+  //   this.modelQuery = this.modelQuery.find(filterQueryObj as FilterQuery<T>);
+  //   return this;
+  // }
+
+  // for experiment dynamic filtering
+  filterBy(fields: string[]) {
+    fields.forEach((field) => {
+      const value: any = this.query[field];
+      if (value) {
+        const values = value.split(',');
+        this.modelQuery = this.modelQuery.find({
+          [field]: { $in: values },
+        } as FilterQuery<T>);
+      }
+    });
+    return this;
+  }
+
+  filterByMaxPrice() {
+    const maxPrice = this.query.maxPrice ? Number(this.query.maxPrice) : null;
+
+    if (maxPrice !== null) {
+      this.modelQuery = this.modelQuery.find({
+        price: { $lt: maxPrice },
+      });
+    }
     return this;
   }
 

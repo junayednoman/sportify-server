@@ -8,6 +8,8 @@ const cartProductValidationSchema = z.object({
   productId: objectIdValidation,
   quantity: z.number().min(1, { message: 'Quantity must be at least 1' }),
   price: z.number().positive({ message: 'Price must be a positive number' }),
+  image: z.string({ required_error: 'Image is required' }),
+  name: z.string({ required_error: 'Name is required' }),
 });
 
 const cartValidationSchema = z.object({
@@ -22,8 +24,8 @@ const cartValidationSchema = z.object({
 const updateCartItemProductQuantitySchema = z.object({
   body: z.object({
     productId: objectIdValidation,
-    quantity: z.number().min(1, { message: 'Quantity must be at least 1' }),
-    price: z.number().positive({ message: 'Price must be a positive number' }),
+    quantity: z.number(),
+    price: z.number(),
   }),
 });
 
@@ -36,5 +38,5 @@ const deleteCartProductsSchema = z.object({
 export const cartValidations = {
   cartValidationSchema,
   updateCartItemProductQuantitySchema,
-  deleteCartProductsSchema
+  deleteCartProductsSchema,
 };
